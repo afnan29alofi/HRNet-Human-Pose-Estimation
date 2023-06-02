@@ -118,11 +118,27 @@ class COCODataset(JointsDataset):
             'annotations',
             prefix + '_' + self.image_set + '.json'
         )
+    import os
 
     def _load_image_set_index(self):
-        """ image id: int """
-        image_ids = self.coco.getImgIds()
-        return image_ids
+      image_dir = '/content/drive/MyDrive/bdd100k/bdd100k/images/100k/train' if self.is_train else '/content/drive/MyDrive/bdd100k/bdd100k/images/100k/val'
+      image_files = os.listdir(image_dir)
+      image_ids = []
+      id_counter = 0  # Counter for generating numeric IDs
+      id_to_filename = {}  # Mapping between numeric IDs and image filenames
+
+      for image_file in image_files:
+        image_name = os.path.splitext(image_file)[0]
+        if image_name not in id_to_filename:
+          id_counter += 1
+          id_to_filename[id_counter] = image_name
+        image_ids.append(id_counter)
+
+      self.id_to_filename = id_to_filename  # Save the mapping for future reference
+
+      return image_ids
+
+    
 
     def _get_db(self):
         if self.is_train or self.use_gt_bbox:
